@@ -250,9 +250,10 @@
                     const cells = linhas[i].split(',').map(c => c.trim());
                     if (cells.length !== headers.length) continue;
 
-                    const row = tbody.insertCell(); // insertCell() no tbody
+                    // CORRIGIDO AQUI: use insertRow() para criar a linha
+                    const row = tbody.insertRow(); 
                     cells.forEach((cell, index) => {
-                        const td = row.insertCell(); // insertCell() na linha (row)
+                        const td = row.insertCell(); // insertCell() na linha (row) está correto
                         td.innerHTML = formatarCelula(cell, headers[index], formatadores);
                     });
                 }
@@ -275,7 +276,8 @@
         function formatarCelula(valor, cabecalho, formatadoresAtivos) {
             try {
                 // Certifica-se de que o valor é tratado como um número quando necessário
-                const numericValue = parseFloat(valor.replace('.', '').replace(',', '.')); // Lida com separador decimal ','
+                // Replace para lidar com o separador decimal ','
+                const numericValue = parseFloat(valor.replace('.', '').replace(',', '.')); 
                 
                 if (formatadoresAtivos[cabecalho]) {
                     // Passa o valor numérico para o formatador, se for uma coluna de moeda/número
