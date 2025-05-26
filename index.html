@@ -250,9 +250,9 @@
                     const cells = linhas[i].split(',').map(c => c.trim());
                     if (cells.length !== headers.length) continue;
 
-                    const row = tbody.insertCell(); // Use insertCell() diretamente no tbody
+                    const row = tbody.insertCell(); // insertCell() no tbody
                     cells.forEach((cell, index) => {
-                        const td = row.insertCell();
+                        const td = row.insertCell(); // insertCell() na linha (row)
                         td.innerHTML = formatarCelula(cell, headers[index], formatadores);
                     });
                 }
