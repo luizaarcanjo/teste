@@ -128,14 +128,17 @@
 </head>
 <body>
     <div class="container">
-        <h1>📊 Análise de Clientes</h1>
+        <h1> Análise de Clientes</h1>
         
         <div class="botoes">
-            <button onclick="carregarImagem('clusterizacao')">🔍 Clusterização</button>
-            <button onclick="carregarImagem('clv')">💰 CLV</button>
-            <button onclick="carregarImagem('conjoint')">📈 Conjoint</button>
-            <button onclick="carregarImagem('previsao')">🔮 Previsão</button>
-            <button onclick="carregarCSV()">📂 Carregar Dados</button>
+            <button onclick="carregarImagem('cluster')">Clusterização</button>
+            <button onclick="carregarImagem('clv')">CLV</button>
+	    <button onclick="carregarImagem('clv-campanha')">CLV por Campanha</button>
+            <button onclick="carregarImagem('conjoint')">Conjoint</button>
+            <button onclick="carregarImagem('regressao')">Previsão</button>
+            <button onclick="carregarCSV('clientes.csv')">Clientes</button>
+	    <button onclick="carregarCSV('campanhas.csv')">Campanhas</button>
+            <button onclick="carregarCSV('transacoes.csv')>Transações</button> 
         </div>
 
         <div class="imagem-container" id="imagemContainer">
@@ -143,7 +146,9 @@
         </div>
 
         <div class="tabela-container" id="tabelaContainer">
-            <div class="status">Clique em "Carregar Dados" para ver as informações</div>
+            <div class="status">Clique em "Clientes" para ver as informações</div>
+	    <div class="status">Clique em "Campanhas" para ver as informações</div>
+	    <div class="status">Clique em "Transações" para ver as informações</div>
         </div>
     </div>
 
@@ -154,10 +159,14 @@
         async function carregarCSV() {
             const container = document.getElementById('tabelaContainer');
             try {
-                container.innerHTML = '<div class="status">Carregando dados...</div>';
+                container.innerHTML = '<div class="status">Clientes...</div>',
+		container.innerHTML = '<div class="status">Campanhas...</div>',
+		container.innerHTML = '<div class="status">Transações...</div>;
                 
                 // URL absoluta com cache busting
-                const csvUrl = `${BASE_URL}/aula05-dados_clientes.csv?t=${Date.now()}`;
+                const csvUrl = `${BASE_URL}/clientes.csv?t=${Date.now()}`,
+		const csvUrl = `${BASE_URL}/campanhas.csv?t=${Date.now()}`,
+                const csvUrl = `${BASE_URL}/transacoes.csv?t${Date.now()}`;
                 const response = await fetch(csvUrl);
                 
                 if (!response.ok) {
@@ -174,10 +183,20 @@
                 if (linhas.length < 2) throw new Error('CSV inválido');
 
                 const headers = linhas[0].split(',').map(h => h.trim());
-                const expectedHeaders = [
-                    'cliente_id', 'idade', 'renda_anual', 'frequencia_compras',
-                    'valor_medio_compra', 'preferencia_frete_gratis',
-                    'satisfacao_qualidade', 'total_gasto'
+                const expectedHeadersClientes = [
+                    'cliente_id', 'idade', 'renda_mensal', 'cidade',
+		     'tipo_cliente', 'ultima_compra',
+		    'frequencia_compras', 'total_gasto'
+                ]
+
+                const expectedHeadersCampanhas = [
+                     'campanha_id', 'nome_campanha', 'custo_campanha',
+		     'alcance', 'conversao'
+		]
+
+		const expectedheadersTransações = [
+		      'transacao_id', 'cliente_id', data_compra',
+		      'valor_compra', 'meio_pagamento', 'campanha'
                 ];
 
                 if (!arraysIguais(headers, expectedHeaders)) {
@@ -226,22 +245,49 @@
 
         function formatarCelula(valor, cabecalho) {
             try {
-                const formatadores = {
+                const formatadoresClientes = {
                     'cliente_id': v => `#${v.padStart(4, '0')}`,
                     'idade': v => `${v} anos`,
-                    'renda_anual': v => new Intl.NumberFormat('pt-BR', {
+                    'renda_mensal': v => new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL'
                     }).format(v),
-                    'satisfacao_qualidade': v => `${parseFloat(v).toFixed(1)} ⭐`,
-                    'preferencia_frete_gratis': v => v === '1' ? '✅ Sim' : '❌ Não'
-                };
+                    'frequencia_compras': v => `${v} vezes`,
+                    'tipo_cliente': v => `${v}`,
+                    'total_gasto': v => new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                    }).format(v),
+                    'ultima_compra': v => `${v}`
+                }
+
+		const formatadoresCampanhas = {
+		    'campanha_id': v => `${v.padStart(2, '0')}`,
+                    'nome_campanha': v => `${v}`, 
+                    'custo_campanha': v => new Intl.NumberFormat('pt-BR', {
+		       style: 'currency',
+		       currency: 'BRL'
+		    }).format(v),
+		    'alcance': v => `${v}`,
+                    'conversao': v => `${v} %`
+	        }
+
+		const formatadoresTransações = {
+		     'transacao_id': v => `${v.padStart(5, '0')}`,
+                     'cliente_id': v => `#${v.padStart(4, '0')}`,
+                     'valor_compra': v => new Intl.NumberFormat('pt-BR', {
+			     style: 'currency',
+			     currency: 'BRL'
+		      }).format(v),
+		      'meio_pagamento': v => `${v}`,
+                      'campanha': v => `${v}`
+		}
                 return formatadores[cabecalho]?.(valor) || valor;
             } catch (error) {
                 return `<span style="color:red">${valor}</span>`;
             }
         }
-
+	    
         function arraysIguais(a, b) {
             return a.length === b.length && a.every((v, i) => v === b[i]);
         }
